@@ -1,6 +1,9 @@
-
 mod style;
-use egui::{RichText, TextStyle, FontDefinitions, FontFamily::{Proportional, Monospace}, FontData};
+use egui::{
+    FontData, FontDefinitions,
+    FontFamily::{Monospace, Proportional},
+    RichText, TextStyle,
+};
 use style::*;
 
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -27,24 +30,70 @@ impl Default for TemplateApp {
     }
 }
 
-fn load_fonts(cc: &eframe::CreationContext<'_>){
+fn load_fonts(cc: &eframe::CreationContext<'_>) {
     let mut fonts = FontDefinitions::empty();
-    fonts.font_data.insert("NotoSans".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSans-Regular.ttf")));
-    fonts.font_data.insert("NotoSansMono".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansMono-Regular.ttf")));
-    fonts.font_data.insert("NotoSansSymbols".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansSymbols-Regular.ttf")));
-    fonts.font_data.insert("NotoSansSymbols2".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansSymbols2-Regular.ttf")));
-    fonts.font_data.insert("NotoEmoji".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoEmoji-Regular.ttf")));
+    fonts.font_data.insert(
+        "NotoSans".to_owned(),
+        FontData::from_static(include_bytes!("../fonts/NotoSans-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansMono".to_owned(),
+        FontData::from_static(include_bytes!("../fonts/NotoSansMono-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansSymbols".to_owned(),
+        FontData::from_static(include_bytes!("../fonts/NotoSansSymbols-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansSymbols2".to_owned(),
+        FontData::from_static(include_bytes!("../fonts/NotoSansSymbols2-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoEmoji".to_owned(),
+        FontData::from_static(include_bytes!("../fonts/NotoEmoji-Regular.ttf")),
+    );
 
-    fonts.families.entry(Proportional).or_default().push("NotoSans".to_owned());
-    fonts.families.entry(Proportional).or_default().push("NotoSansSymbols".to_owned());
-    fonts.families.entry(Proportional).or_default().push("NotoSansSymbols2".to_owned());
-    fonts.families.entry(Proportional).or_default().push("NotoEmoji".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSans".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSansSymbols".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSansSymbols2".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoEmoji".to_owned());
 
-
-    fonts.families.entry(Monospace).or_default().push("NotoSansMono".to_owned());
-    fonts.families.entry(Monospace).or_default().push("NotoSansSymbols".to_owned());
-    fonts.families.entry(Monospace).or_default().push("NotoSansSymbols2".to_owned());
-    fonts.families.entry(Monospace).or_default().push("NotoEmoji".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansMono".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansSymbols".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansSymbols2".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoEmoji".to_owned());
 
     cc.egui_ctx.set_fonts(fonts);
 }
@@ -82,11 +131,11 @@ impl eframe::App for TemplateApp {
         // Tip: a good default choice is to just keep the `CentralPanel`.
         // For inspiration and more examples, go to https://emilk.github.io/egui
 
-        #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
+                    #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                     if ui.button("Quit").clicked() {
                         _frame.close();
                     }
