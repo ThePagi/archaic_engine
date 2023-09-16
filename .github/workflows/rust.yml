@@ -10,7 +10,7 @@ env:
 
 jobs:
   check:
-    if: false
+    if: true
     name: Check
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +26,7 @@ jobs:
           args: --all-features
 
   check_wasm:
-    if: false
+    if: true
     name: Check wasm32
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +43,7 @@ jobs:
           args: --all-features --lib --target wasm32-unknown-unknown
 
   test:
-    if: false
+    if: true
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
@@ -54,13 +54,15 @@ jobs:
           toolchain: stable
           override: true
       - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: --lib
 
   fmt:
-    if: false
+    if: true
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -77,7 +79,7 @@ jobs:
           args: --all -- --check
 
   clippy:
-    if: false
+    if: true
     name: Clippy
     runs-on: ubuntu-latest
     steps:
@@ -106,5 +108,7 @@ jobs:
           override: true
       - name: Download and install Trunk binary
         run: wget -qO- https://github.com/thedodd/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1
       - name: Build
         run: ./trunk build
