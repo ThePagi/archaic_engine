@@ -20,6 +20,8 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:
           command: check
@@ -37,6 +39,8 @@ jobs:
           toolchain: stable
           target: wasm32-unknown-unknown
           override: true
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:
           command: check
@@ -73,6 +77,8 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1 
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
@@ -90,6 +96,8 @@ jobs:
           toolchain: stable
           override: true
           components: clippy
+      - name: Rust Cache # cache the rust build artefacts
+        uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
