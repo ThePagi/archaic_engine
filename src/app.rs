@@ -1,3 +1,10 @@
+
+mod style;
+use egui::{RichText, TextStyle, FontDefinitions, FontFamily::{Proportional, Monospace}, FontData};
+use style::*;
+
+pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
@@ -20,12 +27,35 @@ impl Default for TemplateApp {
     }
 }
 
+fn load_fonts(cc: &eframe::CreationContext<'_>){
+    let mut fonts = FontDefinitions::empty();
+    fonts.font_data.insert("NotoSans".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSans-Regular.ttf")));
+    fonts.font_data.insert("NotoSansMono".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansMono-Regular.ttf")));
+    fonts.font_data.insert("NotoSansSymbols".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansSymbols-Regular.ttf")));
+    fonts.font_data.insert("NotoSansSymbols2".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoSansSymbols2-Regular.ttf")));
+    fonts.font_data.insert("NotoEmoji".to_owned(), FontData::from_static(include_bytes!("../fonts/NotoEmoji-Regular.ttf")));
+
+    fonts.families.entry(Proportional).or_default().push("NotoSans".to_owned());
+    fonts.families.entry(Proportional).or_default().push("NotoSansSymbols".to_owned());
+    fonts.families.entry(Proportional).or_default().push("NotoSansSymbols2".to_owned());
+    fonts.families.entry(Proportional).or_default().push("NotoEmoji".to_owned());
+
+
+    fonts.families.entry(Monospace).or_default().push("NotoSansMono".to_owned());
+    fonts.families.entry(Monospace).or_default().push("NotoSansSymbols".to_owned());
+    fonts.families.entry(Monospace).or_default().push("NotoSansSymbols2".to_owned());
+    fonts.families.entry(Monospace).or_default().push("NotoEmoji".to_owned());
+
+    cc.egui_ctx.set_fonts(fonts);
+}
+
 impl TemplateApp {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
-
+        load_fonts(cc);
+        cc.egui_ctx.set_style(style::style());
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
         if let Some(storage) = cc.storage {
@@ -101,6 +131,11 @@ impl eframe::App for TemplateApp {
                 "https://github.com/emilk/eframe_template/blob/master/",
                 "Source code."
             ));
+
+            ui.heading("Top Heading");
+            ui.label(LOREM_IPSUM);
+            ui.monospace(LOREM_IPSUM);
+            ui.small(LOREM_IPSUM);
             egui::warn_if_debug_build(ui);
         });
 
