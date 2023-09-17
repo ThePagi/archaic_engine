@@ -9,7 +9,7 @@ pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, conse
 type LoadedFile = (String, Vec<u8>);
 
 fn open_file(sender: mpsc::Sender<LoadedFile>) {
-    let future = async {
+    let future = async move {
         let file = rfd::AsyncFileDialog::new().pick_file().await;
         if let Some(file) = file {
             let data = file.read().await;
