@@ -5,7 +5,7 @@ use egui::{
     RichText, TextStyle,
 };
 use style::*;
-
+use futures::executor::block_on;
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
@@ -135,6 +135,15 @@ impl eframe::App for TemplateApp {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
+                    if ui.button("Open file…").clicked() {
+                        let future = async {
+                            let file = rfd::AsyncFileDialog::new().pick_file().await;
+                            file.unwrap().read().await
+                        };
+                        let data = block_on(future);
+                        println!("{:?}", data);
+                    };
+
                     #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                     if ui.button("Quit").clicked() {
                         _frame.close();

@@ -8,6 +8,7 @@ fn main() -> eframe::Result<()> {
 
     let mut native_options = eframe::NativeOptions::default();
     native_options.maximized = true;
+    native_options.drag_and_drop_support = true;
     eframe::run_native(
         "Archaic Engine",
         native_options,
@@ -21,8 +22,7 @@ fn main() {
     // Redirect `log` message to `console.log` and friends:
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
 
-    let web_options = eframe::WebOptions::default();
-
+    let mut web_options = eframe::WebOptions::default();
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
             .start(
