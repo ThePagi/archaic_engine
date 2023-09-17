@@ -2,6 +2,8 @@
 
 [![Build Status](https://github.com/ThePagi/archaic_engine/workflows/CI/badge.svg)](https://github.com/ThePagi/archaic_engine/actions?workflow=CI)
 
+[WASM Live Page]{https://thepagi.github.io/archaic_engine/#dev}
+
 This is a template repo for [eframe](https://github.com/emilk/egui/tree/master/crates/eframe), a framework for writing apps using [egui](https://github.com/emilk/egui/).
 
 The goal is for this to be the simplest way to get started writing a GUI app in Rust.
