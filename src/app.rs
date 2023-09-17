@@ -155,6 +155,9 @@ impl eframe::App for TemplateApp {
             if ui.button("Increment").clicked() {
                 *value += 1.0;
             }
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.label(LOREM_IPSUM.repeat(1));
+            });
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 ui.horizontal(|ui| {

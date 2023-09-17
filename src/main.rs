@@ -6,9 +6,10 @@
 fn main() -> eframe::Result<()> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
 
-    let native_options = eframe::NativeOptions::default();
+    let mut native_options = eframe::NativeOptions::default();
+    native_options.maximized = true;
     eframe::run_native(
-        "eframe template",
+        "Archaic Engine",
         native_options,
         Box::new(|cc| Box::new(archaic_engine::TemplateApp::new(cc))),
     )
