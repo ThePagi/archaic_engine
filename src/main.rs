@@ -12,7 +12,7 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Archaic Engine",
         native_options,
-        Box::new(|cc| Box::new(archaic_engine::TemplateApp::new(cc))),
+        Box::new(|cc| Box::new(archaic_engine::App::new(cc))),
     )
 }
 
@@ -28,7 +28,7 @@ fn main() {
             .start(
                 "the_canvas_id", // hardcode it
                 web_options,
-                Box::new(|cc| Box::new(archaic_engine::TemplateApp::new(cc))),
+                Box::new(|cc| Box::new(archaic_engine::App::new(cc))),
             )
             .await
             .expect("failed to start eframe");

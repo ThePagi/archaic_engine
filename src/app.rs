@@ -5,13 +5,32 @@ use egui::{
     RichText, TextStyle,
 };
 use style::*;
-use futures::executor::block_on;
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+fn open_file() {
+    let future = async {
+        let file = rfd::AsyncFileDialog::new().pick_file().await;
+        if let Some(file) = file {
+            println!("{}", file.file_name());
+            file.read().await;
+        }
+    };
+    #[cfg(target_arch = "wasm32")]
+    {
+        use wasm_bindgen_futures::spawn_local;
+        spawn_local(future);
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use futures::executor::block_on;
+        block_on(future);
+    }
+}
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-pub struct TemplateApp {
+pub struct App {
     // Example stuff:
     label: String,
 
@@ -20,7 +39,7 @@ pub struct TemplateApp {
     value: f32,
 }
 
-impl Default for TemplateApp {
+impl Default for App {
     fn default() -> Self {
         Self {
             // Example stuff:
@@ -30,75 +49,7 @@ impl Default for TemplateApp {
     }
 }
 
-fn load_fonts(cc: &eframe::CreationContext<'_>) {
-    let mut fonts = FontDefinitions::empty();
-    fonts.font_data.insert(
-        "NotoSans".to_owned(),
-        FontData::from_static(include_bytes!("../fonts/NotoSans-Regular.ttf")),
-    );
-    fonts.font_data.insert(
-        "NotoSansMono".to_owned(),
-        FontData::from_static(include_bytes!("../fonts/NotoSansMono-Regular.ttf")),
-    );
-    fonts.font_data.insert(
-        "NotoSansSymbols".to_owned(),
-        FontData::from_static(include_bytes!("../fonts/NotoSansSymbols-Regular.ttf")),
-    );
-    fonts.font_data.insert(
-        "NotoSansSymbols2".to_owned(),
-        FontData::from_static(include_bytes!("../fonts/NotoSansSymbols2-Regular.ttf")),
-    );
-    fonts.font_data.insert(
-        "NotoEmoji".to_owned(),
-        FontData::from_static(include_bytes!("../fonts/NotoEmoji-Regular.ttf")),
-    );
-
-    fonts
-        .families
-        .entry(Proportional)
-        .or_default()
-        .push("NotoSans".to_owned());
-    fonts
-        .families
-        .entry(Proportional)
-        .or_default()
-        .push("NotoSansSymbols".to_owned());
-    fonts
-        .families
-        .entry(Proportional)
-        .or_default()
-        .push("NotoSansSymbols2".to_owned());
-    fonts
-        .families
-        .entry(Proportional)
-        .or_default()
-        .push("NotoEmoji".to_owned());
-
-    fonts
-        .families
-        .entry(Monospace)
-        .or_default()
-        .push("NotoSansMono".to_owned());
-    fonts
-        .families
-        .entry(Monospace)
-        .or_default()
-        .push("NotoSansSymbols".to_owned());
-    fonts
-        .families
-        .entry(Monospace)
-        .or_default()
-        .push("NotoSansSymbols2".to_owned());
-    fonts
-        .families
-        .entry(Monospace)
-        .or_default()
-        .push("NotoEmoji".to_owned());
-
-    cc.egui_ctx.set_fonts(fonts);
-}
-
-impl TemplateApp {
+impl App {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
@@ -115,7 +66,7 @@ impl TemplateApp {
     }
 }
 
-impl eframe::App for TemplateApp {
+impl eframe::App for App {
     /// Called by the frame work to save state before shutdown.
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
@@ -136,12 +87,8 @@ impl eframe::App for TemplateApp {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open file…").clicked() {
-                        let future = async {
-                            let file = rfd::AsyncFileDialog::new().pick_file().await;
-                            file.unwrap().read().await
-                        };
-                        let data = block_on(future);
-                        println!("{:?}", data);
+
+                        open_file();
                     };
 
                     #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!

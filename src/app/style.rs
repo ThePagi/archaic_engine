@@ -5,7 +5,7 @@ use eframe::egui;
 use egui::{
     epaint::Shadow,
     style::{Interaction, Margin, Selection, Spacing, WidgetVisuals, Widgets},
-    Color32, Rounding, Stroke, Style, Vec2, Visuals, TextStyle, FontId,
+    Color32, Rounding, Stroke, Style, Vec2, Visuals, TextStyle, FontId, FontData, FontDefinitions,
 };
 use egui::FontFamily::{Proportional, Monospace};
 pub fn style() -> Style {
@@ -226,3 +226,72 @@ pub fn style() -> Style {
         ..Default::default()
     }
 }
+
+pub fn load_fonts(cc: &eframe::CreationContext<'_>) {
+    let mut fonts = FontDefinitions::empty();
+    fonts.font_data.insert(
+        "NotoSans".to_owned(),
+        FontData::from_static(include_bytes!("../../fonts/NotoSans-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansMono".to_owned(),
+        FontData::from_static(include_bytes!("../../fonts/NotoSansMono-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansSymbols".to_owned(),
+        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoSansSymbols2".to_owned(),
+        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols2-Regular.ttf")),
+    );
+    fonts.font_data.insert(
+        "NotoEmoji".to_owned(),
+        FontData::from_static(include_bytes!("../../fonts/NotoEmoji-Regular.ttf")),
+    );
+
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSans".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSansSymbols".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoSansSymbols2".to_owned());
+    fonts
+        .families
+        .entry(Proportional)
+        .or_default()
+        .push("NotoEmoji".to_owned());
+
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansMono".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansSymbols".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoSansSymbols2".to_owned());
+    fonts
+        .families
+        .entry(Monospace)
+        .or_default()
+        .push("NotoEmoji".to_owned());
+
+    cc.egui_ctx.set_fonts(fonts);
+}
+
