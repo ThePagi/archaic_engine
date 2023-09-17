@@ -1,14 +1,18 @@
 mod style;
 
 use style::*;
+use std::sync::mpsc;
+
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-fn open_file() {
+type LoadedFile = (String, Vec<u8>);
+
+fn open_file(sender: mpsc::Sender<LoadedFile>) {
     let future = async {
         let file = rfd::AsyncFileDialog::new().pick_file().await;
         if let Some(file) = file {
-            println!("{}", file.file_name());
-            file.read().await;
+            let data = file.read().await;
+            sender.send((file.file_name(), data)).expect("File loading channel unexpectedly closed.");
         }
     };
     #[cfg(target_arch = "wasm32")]
@@ -33,14 +37,21 @@ pub struct App {
     // this how you opt-out of serialization of a member
     #[serde(skip)]
     value: f32,
+    #[serde(skip)]
+    file_load_rx: mpsc::Receiver<LoadedFile>,
+    #[serde(skip)]
+    file_load_tx: mpsc::Sender<LoadedFile>
 }
 
 impl Default for App {
     fn default() -> Self {
+        let (tx,rx) = mpsc::channel();
         Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
+            file_load_rx: rx,
+            file_load_tx: tx
         }
     }
 }
@@ -71,20 +82,18 @@ impl eframe::App for App {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self { label, value } = self;
 
-        // Examples of how to create different panels and windows.
-        // Pick whichever suits you.
-        // Tip: a good default choice is to just keep the `CentralPanel`.
-        // For inspiration and more examples, go to https://emilk.github.io/egui
+        if let Ok((name, data)) = self.file_load_rx.try_recv(){
+            log::debug!("{name}");
+            println!("{name}");
+        }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("Open file…").clicked() {
-
-                        open_file();
+                        open_file(self.file_load_tx.clone());
                     };
 
                     #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
@@ -100,12 +109,12 @@ impl eframe::App for App {
 
             ui.horizontal(|ui| {
                 ui.label("Write something: ");
-                ui.text_edit_singleline(label);
+                ui.text_edit_singleline(&mut self.label);
             });
 
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+            ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
             if ui.button("Increment").clicked() {
-                *value += 1.0;
+                self.value += 1.0;
             }
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.label(LOREM_IPSUM.repeat(1));
