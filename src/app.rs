@@ -1,7 +1,8 @@
 mod style;
 
-use style::*;
+use egui::Layout;
 use std::sync::mpsc;
+use style::*;
 
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -12,7 +13,9 @@ fn open_file(sender: mpsc::Sender<LoadedFile>) {
         let file = rfd::AsyncFileDialog::new().pick_file().await;
         if let Some(file) = file {
             let data = file.read().await;
-            sender.send((file.file_name(), data)).expect("File loading channel unexpectedly closed.");
+            sender
+                .send((file.file_name(), data))
+                .expect("File loading channel unexpectedly closed.");
         }
     };
     #[cfg(target_arch = "wasm32")]
@@ -40,18 +43,18 @@ pub struct App {
     #[serde(skip)]
     file_load_rx: mpsc::Receiver<LoadedFile>,
     #[serde(skip)]
-    file_load_tx: mpsc::Sender<LoadedFile>
+    file_load_tx: mpsc::Sender<LoadedFile>,
 }
 
 impl Default for App {
     fn default() -> Self {
-        let (tx,rx) = mpsc::channel();
+        let (tx, rx) = mpsc::channel();
         Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
             file_load_rx: rx,
-            file_load_tx: tx
+            file_load_tx: tx,
         }
     }
 }
@@ -82,24 +85,29 @@ impl eframe::App for App {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-
-        if let Ok((name, data)) = self.file_load_rx.try_recv(){
+        if let Ok((name, data)) = self.file_load_rx.try_recv() {
             log::debug!("{name}");
             println!("{name}");
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            // The top panel is often a good place for a menu bar:
-            egui::menu::bar(ui, |ui| {
-                ui.menu_button("File", |ui| {
-                    if ui.button("Open file…").clicked() {
-                        open_file(self.file_load_tx.clone());
-                    };
+            ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
+                // The top panel is often a good place for a menu bar:
+                egui::menu::bar(ui, |ui| {
+                    ui.menu_button("File", |ui| {
+                        if ui.button("Open file…").clicked() {
+                            open_file(self.file_load_tx.clone());
+                        };
 
-                    #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
-                    if ui.button("Quit").clicked() {
-                        _frame.close();
-                    }
+                        #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
+                        if ui.button("Quit").clicked() {
+                            _frame.close();
+                        }
+                    });
+                });
+                ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.label(build_time::build_time_local!("Built at %H:%M, %d.%m.%Y"));
+                    egui::warn_if_debug_build(ui);
                 });
             });
         });
@@ -149,7 +157,6 @@ impl eframe::App for App {
             ui.label(LOREM_IPSUM);
             ui.monospace(LOREM_IPSUM);
             ui.small(LOREM_IPSUM);
-            egui::warn_if_debug_build(ui);
         });
 
         if false {
