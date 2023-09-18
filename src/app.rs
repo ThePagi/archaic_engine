@@ -1,7 +1,11 @@
+pub mod logwidget;
 mod style;
 
+use chrono::{DateTime, Local};
 use egui::Layout;
-use std::sync::mpsc;
+use log::{info, warn, error};
+
+use std::{sync::mpsc, time::SystemTime};
 use style::*;
 
 pub const LOREM_IPSUM: &str = "Lorem 😏😏😏😏ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -30,64 +34,45 @@ fn open_file(sender: mpsc::Sender<LoadedFile>) {
     }
 }
 
-/// We derive Deserialize/Serialize so we can persist app state on shutdown.
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct App {
     // Example stuff:
     label: String,
-
-    // this how you opt-out of serialization of a member
-    #[serde(skip)]
     value: f32,
-    #[serde(skip)]
     file_load_rx: mpsc::Receiver<LoadedFile>,
-    #[serde(skip)]
     file_load_tx: mpsc::Sender<LoadedFile>,
+    log_widget: logwidget::MyLogger,
 }
 
-impl Default for App {
-    fn default() -> Self {
+impl App {
+    /// Called once before the first frame.
+    pub fn new(cc: &eframe::CreationContext<'_>, log_widget: logwidget::MyLogger) -> Self {
+        // This is also where you can customize the look and feel of egui using
+        // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
+        load_fonts(cc);
+        cc.egui_ctx.set_style(style::style());
+
         let (tx, rx) = mpsc::channel();
-        Self {
+        let s = Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
             file_load_rx: rx,
             file_load_tx: tx,
-        }
-    }
-}
-
-impl App {
-    /// Called once before the first frame.
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        // This is also where you can customize the look and feel of egui using
-        // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
-        load_fonts(cc);
-        cc.egui_ctx.set_style(style::style());
-        // Load previous app state (if any).
-        // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
-
-        Default::default()
+            log_widget,
+        };
+        info!("Logger set up!");
+        warn!("This is a warning call!");
+        error!("This is a REEEEEEEEEEEEEe call!");
+        s
     }
 }
 
 impl eframe::App for App {
-    /// Called by the frame work to save state before shutdown.
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
-    }
-
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if let Ok((name, data)) = self.file_load_rx.try_recv() {
-            log::debug!("{name}");
-            println!("{name}");
+        if let Ok((name, _data)) = self.file_load_rx.try_recv() {
+            log::info!("{name}");
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -106,8 +91,10 @@ impl eframe::App for App {
                     });
                 });
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.label(build_time::build_time_local!("Built at %H:%M, %d.%m.%Y"));
                     egui::warn_if_debug_build(ui);
+                    ui.label(build_time::build_time_local!("Built on %d.%m.%Y, %H:%M."));
+                    let curr_time: DateTime<Local> = SystemTime::now().into();
+                    ui.label(curr_time.format("Current time: %H:%M:%S.").to_string());
                 });
             });
         });
@@ -143,6 +130,14 @@ impl eframe::App for App {
             });
         });
 
+        egui::TopBottomPanel::top("log console")
+            .resizable(true)
+            .show(ctx, |ui| {
+                ui.with_layout(egui::Layout::top_down_justified(egui::Align::Min), |ui| {
+                    self.log_widget.show_log(ui)
+                });
+            });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
@@ -157,6 +152,7 @@ impl eframe::App for App {
             ui.label(LOREM_IPSUM);
             ui.monospace(LOREM_IPSUM);
             ui.small(LOREM_IPSUM);
+
         });
 
         if false {

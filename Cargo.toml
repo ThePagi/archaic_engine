@@ -7,12 +7,12 @@ rust-version = "1.71"
 
 
 [dependencies]
-egui = {version="0.22.0", default-features = false, features = ["persistence", "serde", "accesskit"]}
+egui = {version="0.22.0", default-features = false, features = [ "accesskit"]}
 eframe = { version = "0.22.0", default-features = false, features = [
     "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
 #    "default_fonts", # Embed the default egui fonts.
     "glow",          # Use the glow rendering backend. Alternative: "wgpu".
-    "persistence",   # Enable restoring app state when restarting the app.
+#    "persistence",   # Enable restoring app state when restarting the app.
 ] }
 log = "0.4"
 
@@ -22,10 +22,9 @@ rfd = "0.12.0"
 futures = "0.3.28"
 wasm-bindgen-futures = "0.4"
 build-time = "0.1.3"
+simplelog = "0.12.1"
+chrono = "0.4.31"
 
-# native:
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-env_logger = "0.10"
 
 # web:
 [target.'cfg(target_arch = "wasm32")'.dependencies]
