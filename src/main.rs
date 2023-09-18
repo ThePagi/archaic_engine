@@ -7,7 +7,7 @@ use simplelog::*;
 fn main() -> eframe::Result<()> {
     let (log_widget, log_writer) = archaic_engine::app::logwidget::new_logger();
     let mut loggers: Vec<Box<dyn SharedLogger>> = vec![
-        WriteLogger::new(LevelFilter::Debug, Config::default(), log_writer)
+        WriteLogger::new(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Off).build(), log_writer)
     ];
     #[cfg(debug_assertions)]
     loggers.push(TermLogger::new(LevelFilter::Debug, Config::default(), TerminalMode::Mixed, ColorChoice::Auto));
