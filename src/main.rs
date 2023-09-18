@@ -7,7 +7,7 @@ use simplelog::*;
 fn main() -> eframe::Result<()> {
     let (log_widget, log_writer) = archaic_engine::app::logwidget::new_logger();
     let mut loggers: Vec<Box<dyn SharedLogger>> = vec![
-        WriteLogger::new(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Off).build(), log_writer)
+        WriteLogger::new(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Trace).build(), log_writer)
     ];
     #[cfg(debug_assertions)]
     loggers.push(TermLogger::new(LevelFilter::Debug, Config::default(), TerminalMode::Mixed, ColorChoice::Auto));
@@ -30,7 +30,7 @@ fn main() {
     // Redirect `log` message to `console.log` and friends:
     //eframe::WebLogger::init(log::LevelFilter::Debug).ok();
     let (log_widget, log_writer) = archaic_engine::app::logwidget::new_logger();
-    let _ = WriteLogger::init(LevelFilter::Debug, Config::default(), log_writer);
+    let _ = WriteLogger::init(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Trace).build(), log_writer);
     
     let mut web_options = eframe::WebOptions::default();
     wasm_bindgen_futures::spawn_local(async {
