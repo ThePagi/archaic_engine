@@ -83,6 +83,8 @@ impl eframe::App for App {
                             open_file(self.file_load_tx.clone());
                         };
 
+                        ui.hyperlink_to("Open Source Code", "https://github.com/ThePagi/archaic_engine");
+
                         #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                         if ui.button("Quit").clicked() {
                             _frame.close();

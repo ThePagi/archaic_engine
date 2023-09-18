@@ -1,6 +1,6 @@
 use std::{collections::vec_deque::VecDeque, io::Write};
 
-use egui::{ScrollArea, Ui, Color32, RichText};
+use egui::{ScrollArea, Ui, Color32, RichText, TextEdit};
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 const MAX_MESSAGES: usize = 256;
@@ -60,17 +60,18 @@ pub fn new_logger() -> (MyLogger, LogWriter) {
 impl MyLogger {
     pub fn show_log(&mut self, ui: &mut Ui) {
         while let Ok(msg) = self.rx.try_recv() {
-            let mut color = ui.visuals().text_color() ;
-            if msg.contains("[ERROR]"){
+            let (prefix, msg) = msg.split_at(msg.find(']').map_or(0, |i|i+2));
+            let mut color = ui.visuals().text_color();
+            if prefix.contains("[ERROR]"){
                 color = ui.visuals().error_fg_color;
             }
-            else if msg.contains("[WARN]"){
+            else if prefix.contains("[WARN]"){
                 color = ui.visuals().warn_fg_color;
             }
-            else if msg.contains("[DEBUG]"){
+            else if prefix.contains("[DEBUG]"){
                 color = ui.visuals().weak_text_color();
             }
-            self.messages.push_back(RichMsg{ msg, color});
+            self.messages.push_back(RichMsg{ msg: msg.to_owned(), color});
         }
         while self.messages.len() > MAX_MESSAGES {
             self.messages.pop_front();
@@ -79,7 +80,8 @@ impl MyLogger {
 
         ScrollArea::vertical().show_rows(ui, rh, self.messages.len(), |ui, range| {
             for msg in &mut self.messages.range(range) {
-                ui.label(RichText::new(msg.msg.clone()).color(msg.color).text_style(egui::TextStyle::Small));
+                ui.add(TextEdit::multiline(&mut msg.msg.as_str()).desired_rows(1).text_color(msg.color));
+                //ui.label(RichText::new(msg.msg.clone()).color(msg.color).text_style(egui::TextStyle::Small));
             }
         });
     }

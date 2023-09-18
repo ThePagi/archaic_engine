@@ -6,14 +6,22 @@ use simplelog::*;
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
     let (log_widget, log_writer) = archaic_engine::app::logwidget::new_logger();
-    let mut loggers: Vec<Box<dyn SharedLogger>> = vec![
-        WriteLogger::new(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Trace).build(), log_writer)
-    ];
+    let mut loggers: Vec<Box<dyn SharedLogger>> = vec![WriteLogger::new(
+        LevelFilter::Debug,
+        ConfigBuilder::new()
+            .set_time_level(LevelFilter::Trace)
+            .set_thread_level(LevelFilter::Trace)
+            .build(),
+        log_writer,
+    )];
     #[cfg(debug_assertions)]
-    loggers.push(TermLogger::new(LevelFilter::Debug, Config::default(), TerminalMode::Mixed, ColorChoice::Auto));
-    let _ = CombinedLogger::init(
-        loggers
-    ).unwrap();
+    loggers.push(TermLogger::new(
+        LevelFilter::Debug,
+        Config::default(),
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    ));
+    let _ = CombinedLogger::init(loggers).unwrap();
     let mut native_options = eframe::NativeOptions::default();
     native_options.maximized = true;
     native_options.drag_and_drop_support = true;
@@ -30,8 +38,15 @@ fn main() {
     // Redirect `log` message to `console.log` and friends:
     //eframe::WebLogger::init(log::LevelFilter::Debug).ok();
     let (log_widget, log_writer) = archaic_engine::app::logwidget::new_logger();
-    let _ = WriteLogger::init(LevelFilter::Debug, ConfigBuilder::new().set_time_level(LevelFilter::Trace).build(), log_writer);
-    
+    let _ = WriteLogger::init(
+        LevelFilter::Debug,
+        ConfigBuilder::new()
+            .set_time_level(LevelFilter::Trace)
+            .set_thread_level(LevelFilter::Trace)
+            .build(),
+        log_writer,
+    );
+
     let mut web_options = eframe::WebOptions::default();
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
