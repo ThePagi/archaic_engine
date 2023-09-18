@@ -175,7 +175,6 @@ name = "archaic_engine"
 version = "0.1.0"
 dependencies = [
  "build-time",
- "chrono",
  "eframe",
  "egui",
  "futures",
@@ -184,7 +183,6 @@ dependencies = [
  "serde",
  "simplelog",
  "wasm-bindgen-futures",
- "web-time",
 ]
 
 [[package]]
@@ -561,9 +559,7 @@ checksum = "7f2c685bad3eb3d45a01354cedb7d5faa66194d1d58ba6e267a8de788f79db38"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
- "js-sys",
  "num-traits",
- "wasm-bindgen",
  "windows-targets 0.48.0",
 ]
 
@@ -2717,17 +2713,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e33b99f4b23ba3eec1a53ac264e35a755f00e966e0065077d6027c0f575b0b97"
 dependencies = [
  "js-sys",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "web-time"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19353897b48e2c4d849a2d73cb0aeb16dc2be4e00c565abfc11eb65a806e47de"
-dependencies = [
- "js-sys",
- "once_cell",
  "wasm-bindgen",
 ]
 
