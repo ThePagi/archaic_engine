@@ -2,7 +2,7 @@ pub mod logwidget;
 mod style;
 
 use egui::Layout;
-use log::{info, warn, error};
+use log::{debug, error, info, warn};
 
 use std::sync::mpsc;
 use style::*;
@@ -37,6 +37,8 @@ pub struct App {
     // Example stuff:
     label: String,
     value: f32,
+    show_inspector: bool,
+    show_console: bool,
     file_load_rx: mpsc::Receiver<LoadedFile>,
     file_load_tx: mpsc::Sender<LoadedFile>,
     log_widget: logwidget::MyLogger,
@@ -48,20 +50,23 @@ impl App {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
         load_fonts(cc);
-        cc.egui_ctx.set_style(style::style());
+        cc.egui_ctx.set_style(style::style_dark());
 
         let (tx, rx) = mpsc::channel();
         let s = Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
+            show_inspector: false,
+            show_console: false,
             file_load_rx: rx,
             file_load_tx: tx,
             log_widget,
         };
-        info!("Logger set up!");
-        warn!("This is a warning call!");
-        error!("This is a REEEEEEEEEEEEEe call!");
+        debug!("This is a debug message.");
+        info!("This is an info message.");
+        warn!("This is a warning message!");
+        error!("This is an error message!");
         s
     }
 }
@@ -83,13 +88,19 @@ impl eframe::App for App {
                             open_file(self.file_load_tx.clone());
                         };
 
-                        ui.hyperlink_to("Open Source Code", "https://github.com/ThePagi/archaic_engine");
+                        ui.hyperlink_to(
+                            "Open Source Code",
+                            "https://github.com/ThePagi/archaic_engine",
+                        );
 
                         #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                         if ui.button("Quit").clicked() {
                             _frame.close();
                         }
                     });
+                    ui.separator();
+                    ui.toggle_value(&mut self.show_inspector, "🪛 Inspector");
+                    ui.toggle_value(&mut self.show_console, "🖹 Console");
                 });
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                     egui::warn_if_debug_build(ui);
@@ -98,48 +109,48 @@ impl eframe::App for App {
             });
         });
 
-        egui::SidePanel::left("side_panel").show(ctx, |ui| {
-            ui.heading("Side Panel");
+        if self.show_inspector {
+            egui::SidePanel::left("side_panel").show(ctx, |ui| {
+                ui.heading("Side Panel");
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(&mut self.label);
-            });
-
-            ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                self.value += 1.0;
-            }
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.label(LOREM_IPSUM.repeat(1));
-            });
-
-            ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x = 0.0;
-                    ui.label("powered by ");
-                    ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-                    ui.label(" and ");
-                    ui.hyperlink_to(
-                        "eframe",
-                        "https://github.com/emilk/egui/tree/master/crates/eframe",
-                    );
-                    ui.label(".");
+                    ui.label("Write something: ");
+                    ui.text_edit_singleline(&mut self.label);
+                });
+
+                ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
+                if ui.button("Increment").clicked() {
+                    self.value += 1.0;
+                }
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    ui.label(LOREM_IPSUM.repeat(1));
+                });
+
+                ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing.x = 0.0;
+                        ui.label("powered by ");
+                        ui.hyperlink_to("egui", "https://github.com/emilk/egui");
+                        ui.label(" and ");
+                        ui.hyperlink_to(
+                            "eframe",
+                            "https://github.com/emilk/egui/tree/master/crates/eframe",
+                        );
+                        ui.label(".");
+                    });
                 });
             });
-        });
-
-        egui::TopBottomPanel::top("log console")
-            .resizable(true)
-            .show(ctx, |ui| {
-                ui.with_layout(egui::Layout::top_down_justified(egui::Align::Min), |ui| {
-                    self.log_widget.show_log(ui)
+        }
+        if self.show_console {
+            egui::TopBottomPanel::top("log console")
+                .resizable(true)
+                .show(ctx, |ui| {
+                    ui.with_layout(egui::Layout::top_down_justified(egui::Align::Min), |ui| {
+                        self.log_widget.show_log(ui)
+                    });
                 });
-            });
-
+        }
         egui::CentralPanel::default().show(ctx, |ui| {
-            // The central panel the region left after adding TopPanel's and SidePanel's
-
             ui.heading("Welcome to my life!");
             ui.hyperlink("https://github.com/emilk/eframe_template");
             ui.add(egui::github_link_file!(
@@ -151,7 +162,6 @@ impl eframe::App for App {
             ui.label(LOREM_IPSUM);
             ui.monospace(LOREM_IPSUM);
             ui.small(LOREM_IPSUM);
-
         });
 
         if false {

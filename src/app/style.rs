@@ -2,13 +2,14 @@
 
 use eframe::egui;
 
+use egui::FontFamily::{Monospace, Proportional};
 use egui::{
     epaint::Shadow,
     style::{Interaction, Margin, Selection, Spacing, WidgetVisuals, Widgets},
-    Color32, Rounding, Stroke, Style, Vec2, Visuals, TextStyle, FontId, FontData, FontDefinitions,
+    Color32, FontData, FontDefinitions, FontId, FontTweak, Rounding, Stroke, Style, TextStyle,
+    Vec2, Visuals,
 };
-use egui::FontFamily::{Proportional, Monospace};
-pub fn style() -> Style {
+pub fn style_dark() -> Style {
     Style {
         // override the text styles here:
         // override_text_style: Option<TextStyle>
@@ -26,13 +27,13 @@ pub fn style() -> Style {
         Heading: FontId { size: 18.0, family: Proportional }
          */
         text_styles: [
-        (TextStyle::Heading, FontId::new(22.0, Proportional)),
-        (TextStyle::Body, FontId::new(16.0, Proportional)),
-        (TextStyle::Monospace, FontId::new(15.5, Monospace)),
-        (TextStyle::Button, FontId::new(16.0, Proportional)),
-        (TextStyle::Small, FontId::new(14.0, Proportional)),
-    ]
-    .into(),
+            (TextStyle::Heading, FontId::new(22.0, Proportional)),
+            (TextStyle::Body, FontId::new(16.0, Proportional)),
+            (TextStyle::Monospace, FontId::new(15.5, Monospace)),
+            (TextStyle::Button, FontId::new(16.0, Proportional)),
+            (TextStyle::Small, FontId::new(14.0, Proportional)),
+        ]
+        .into(),
 
         // set your drag value text style:
         // drag_value_text_style: TextStyle,
@@ -239,15 +240,36 @@ pub fn load_fonts(cc: &eframe::CreationContext<'_>) {
     );
     fonts.font_data.insert(
         "NotoSansSymbols".to_owned(),
-        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols-Regular.ttf")),
+        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols-Regular.ttf")).tweak(
+            FontTweak {
+                scale: 1.25,
+                y_offset_factor: 0.0,
+                y_offset: 0.0,
+                baseline_offset_factor: 0.05,
+            },
+        ),
     );
     fonts.font_data.insert(
         "NotoSansSymbols2".to_owned(),
-        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols2-Regular.ttf")),
+        FontData::from_static(include_bytes!("../../fonts/NotoSansSymbols2-Regular.ttf")).tweak(
+            FontTweak {
+                scale: 1.25,
+                y_offset_factor: 0.0,
+                y_offset: 0.0,
+                baseline_offset_factor: 0.05,
+            },
+        ),
     );
     fonts.font_data.insert(
         "NotoEmoji".to_owned(),
-        FontData::from_static(include_bytes!("../../fonts/NotoEmoji-Regular.ttf")),
+        FontData::from_static(include_bytes!("../../fonts/NotoEmoji-Regular.ttf")).tweak(
+            FontTweak {
+                scale: 1.25,
+                y_offset_factor: 0.0,
+                y_offset: 0.0,
+                baseline_offset_factor: 0.0,
+            },
+        ),
     );
 
     fonts
@@ -294,4 +316,3 @@ pub fn load_fonts(cc: &eframe::CreationContext<'_>) {
 
     cc.egui_ctx.set_fonts(fonts);
 }
-

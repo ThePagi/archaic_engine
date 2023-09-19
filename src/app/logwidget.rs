@@ -81,7 +81,6 @@ impl MyLogger {
         ScrollArea::vertical().show_rows(ui, rh, self.messages.len(), |ui, range| {
             for msg in &mut self.messages.range(range) {
                 ui.add(TextEdit::multiline(&mut msg.msg.as_str()).desired_rows(1).text_color(msg.color));
-                //ui.label(RichText::new(msg.msg.clone()).color(msg.color).text_style(egui::TextStyle::Small));
             }
         });
     }
