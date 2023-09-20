@@ -1,7 +1,7 @@
 pub mod logwidget;
 mod style;
 
-use egui::Layout;
+use egui::{Layout, Pos2, Color32, Stroke};
 use log::{debug, error, info, warn};
 
 use std::sync::mpsc;
@@ -39,6 +39,7 @@ pub struct App {
     value: f32,
     show_inspector: bool,
     show_console: bool,
+    avg_frametime: f32,
     file_load_rx: mpsc::Receiver<LoadedFile>,
     file_load_tx: mpsc::Sender<LoadedFile>,
     log_widget: logwidget::MyLogger,
@@ -54,6 +55,7 @@ impl App {
 
         let (tx, rx) = mpsc::channel();
         let s = Self {
+            avg_frametime: 0.016666,
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
@@ -74,11 +76,10 @@ impl App {
 impl eframe::App for App {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         if let Ok((name, _data)) = self.file_load_rx.try_recv() {
             log::info!("{name}");
         }
-
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Min), |ui| {
                 // The top panel is often a good place for a menu bar:
@@ -95,7 +96,7 @@ impl eframe::App for App {
 
                         #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                         if ui.button("Quit").clicked() {
-                            _frame.close();
+                            frame.close();
                         }
                     });
                     ui.separator();
@@ -105,6 +106,11 @@ impl eframe::App for App {
                 ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
                     egui::warn_if_debug_build(ui);
                     ui.label(build_time::build_time_local!("Built on %d.%m.%Y, %H:%M."));
+                    ui.separator();
+                    if let Some(usage) = frame.info().cpu_usage{
+                        self.avg_frametime = self.avg_frametime*0.9+usage*0.1;
+                        ui.label(format!("Frame time: {:.2}ms", self.avg_frametime*1000.0));
+                    }
                 });
             });
         });
@@ -150,8 +156,14 @@ impl eframe::App for App {
                     });
                 });
         }
+
+
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Welcome to my life!");
+        egui::Frame::canvas(&ctx.style()).show(ui, |ui|{
+            ui.painter().circle(Pos2::ZERO, 256.0, Color32::YELLOW, Stroke{ width: 2.0, color: Color32::BLUE });
+        });
+
+        ui.heading("Welcome to my life!");
             ui.hyperlink("https://github.com/emilk/eframe_template");
             ui.add(egui::github_link_file!(
                 "https://github.com/emilk/eframe_template/blob/master/",
