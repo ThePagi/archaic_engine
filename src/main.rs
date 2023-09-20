@@ -48,6 +48,8 @@ fn main() {
     );
 
     let mut web_options = eframe::WebOptions::default();
+    //web_options.wgpu_options.supported_backends = eframe::wgpu::Backends::PRIMARY | eframe::wgpu::Backends::SECONDARY;
+    //web_options.wgpu_options.
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
             .start(
