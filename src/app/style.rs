@@ -3,6 +3,7 @@
 use eframe::egui;
 
 use egui::FontFamily::{Monospace, Proportional};
+use egui::style::ScrollStyle;
 use egui::{
     epaint::Shadow,
     style::{Interaction, Margin, Selection, Spacing, WidgetVisuals, Widgets},
@@ -63,15 +64,19 @@ pub fn style_dark() -> Style {
             tooltip_width: 600.0,
             indent_ends_with_horizontal_line: false,
             combo_height: 200.0,
-            scroll_bar_width: 16.0,
-            scroll_handle_min_length: 16.0,
-            scroll_bar_inner_margin: 6.0,
-            scroll_bar_outer_margin: 0.0,
+            scroll: ScrollStyle {
+                bar_width: 16.0,
+                handle_min_length: 16.0,
+                bar_inner_margin: 6.0,
+                bar_outer_margin: 0.0,
+                ..Default::default()
+            },
         },
         interaction: Interaction {
             resize_grab_radius_side: 5.0,
             resize_grab_radius_corner: 16.0,
             show_tooltips_only_when_still: true,
+            tooltip_delay: 0.1
         },
         visuals: Visuals {
             dark_mode: true,
@@ -213,7 +218,6 @@ pub fn style_dark() -> Style {
                 color: Color32::from_rgba_premultiplied(0, 0, 0, 108),
             },
             resize_corner_size: 8.0,
-            text_cursor_width: 2.0,
             text_cursor_preview: false,
             clip_rect_margin: 0.0,
             button_frame: true,
@@ -221,6 +225,7 @@ pub fn style_dark() -> Style {
             indent_has_left_vline: true,
             striped: false,
             slider_trailing_fill: true,
+            ..Default::default()
         },
         animation_time: 0.0,
         explanation_tooltips: false,

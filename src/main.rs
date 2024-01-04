@@ -23,8 +23,8 @@ fn main() -> eframe::Result<()> {
     ));
     let _ = CombinedLogger::init(loggers).unwrap();
     let mut native_options = eframe::NativeOptions::default();
-    native_options.maximized = true;
-    native_options.drag_and_drop_support = true;
+    native_options.viewport.maximized = Some(true);
+    native_options.viewport.drag_and_drop = Some(true);
     eframe::run_native(
         "Archaic Engine",
         native_options,

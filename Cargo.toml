@@ -3,12 +3,12 @@ name = "archaic_engine"
 version = "0.1.0"
 authors = ["The Real Exist"]
 edition = "2021"
-rust-version = "1.71"
+#rust-version = "1.71"
 
 
 [dependencies]
-egui = {version="0.22.0", default-features = false, features = [ "accesskit"]}
-eframe = { version = "0.22.0", default-features = false, features = [
+egui = {version="0.24.1", default-features = false, features = [ "accesskit"]}
+eframe = { version = "0.24.1", default-features = false, features = [
     "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
 #    "default_fonts", # Embed the default egui fonts.
     "glow",          # Use the glow rendering backend. Alternative: "wgpu".
@@ -18,8 +18,8 @@ log = "0.4"
 
 # You only need serde if you want app persistence:
 serde = { version = "1", features = ["derive"] }
-rfd = "0.12.0"
-futures = "0.3.28"
+rfd = "0.12.1"
+futures = "0.3.30"
 wasm-bindgen-futures = "0.4"
 build-time = "0.1.3"
 simplelog = "0.12.1"
